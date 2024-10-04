@@ -225,18 +225,18 @@ export default function AssignmentEditor() {
         </div>
       </div>
       <hr></hr>
-      <div className="d-flex w-100">
+      <div className="d-flex justify-content-end w-100">
       <button
           id="wd-add-assignment-group"
           className="float-end text-nowrap btn btn-lg btn-secondary me-1"
         >
-          Group
+          Cancel
         </button>
         <button
           id="wd-add-assignment-group"
-          className="float-end text-nowrap btn btn-lg btn-secondary me-1"
+          className="float-end text-nowrap btn btn-lg btn-danger me-1"
         >
-          Group
+          Submit
         </button>
       </div>
     </div>
