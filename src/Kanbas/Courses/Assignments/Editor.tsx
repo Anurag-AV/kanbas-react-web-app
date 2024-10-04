@@ -30,7 +30,7 @@ export default function AssignmentEditor() {
             is available online Submit a link to the landing page of
           </textarea>
         </div>
-        <div className="ms-3 mb-4 row d-flex">
+        <div className="ms-3 mb-4 me-2 row d-flex">
           <div className="col-4">
             <label htmlFor="wd-points" className="float-end">
               Points
@@ -45,7 +45,7 @@ export default function AssignmentEditor() {
           </div>
         </div>
 
-        <div className="ms-3 mb-4 row d-flex">
+        <div className="ms-3 mb-4 me-2 row d-flex">
           <div className="col-4">
             <label htmlFor="wd-group" className="float-end">
               Assignment Group
@@ -63,7 +63,7 @@ export default function AssignmentEditor() {
           </div>
         </div>
 
-        <div className="ms-3 mb-4 row d-flex">
+        <div className="ms-3 mb-4 me-2 row d-flex">
           <div className="col-4">
             <label htmlFor="wd-display-grade-as" className="float-end">
               Display grade as
@@ -81,7 +81,7 @@ export default function AssignmentEditor() {
           </div>
         </div>
 
-        <div className="ms-3 mb-4 row d-flex">
+        <div className="ms-3 mb-4 me-2 row d-flex">
           <div className="col-4">
             <label htmlFor="wd-submission-type" className="float-end">
               Submission Type
@@ -163,7 +163,7 @@ export default function AssignmentEditor() {
           </div>
         </div>
 
-        <div className="ms-3 mb-4 row d-flex">
+        <div className="ms-3 mb-4 me-2 row d-flex">
           <div className="col-4">
             <label htmlFor="wd-assign-to" className="float-end">
               Assign
@@ -223,9 +223,9 @@ export default function AssignmentEditor() {
             </div>
           </div>
         </div>
-      </div>
-      <hr></hr>
-      <div className="d-flex justify-content-end w-100">
+        <div className="ms-3 mb-4 me-2 row d-flex">
+        <hr></hr>
+      <div className="d-flex me-2 justify-content-end w-100">
       <button
           id="wd-add-assignment-group"
           className="float-end text-nowrap btn btn-lg btn-secondary me-1"
@@ -239,6 +239,10 @@ export default function AssignmentEditor() {
           Submit
         </button>
       </div>
+        </div>
+        
+      </div>
+      
     </div>
   );
 }
