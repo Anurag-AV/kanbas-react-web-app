@@ -11,7 +11,7 @@ export default function KanbasNavigation() {
     bottom-0 top-0 d-none d-md-block bg-black z-2">
       <a href="https://www.northeastern.edu/" className="list-group-item bg-black border-0 text-center"><img src="/images/NEU.png" width="75px" /></a>
       <Link to="/Kanbas/Account" id="wd-account-link" className={`${pathname.includes("Account") ? " list-group-item text-center border-0 text-danger bg-white" : "list-group-item text-center border-0 text-white bg-black"}`}>
-      <FaRegCircleUser className="fs-1 text text-white" /><br />Account</Link>
+      <FaRegCircleUser className="fs-1 text text-white" style={{fill:pathname.includes("Account") ? 'grey'  : ''}} /><br />Account</Link>
 
 
       <Link to="/Kanbas/Dashboard" id="wd-dashboard-link" className={`${pathname.includes("Dashboard") ? " list-group-item text-center border-0 text-danger bg-white" : "list-group-item text-center border-0 text-white bg-black"}`}>

@@ -2,7 +2,7 @@ export default function AssignmentEditor() {
   return (
     <div id="wd-assignments-editor">
       <div className="col ms-3">
-        <div className="row ms-3">
+        <div className="row ms-2">
           <h5>Assignment</h5>
         </div>
         <div className="row ms-3 me-3 mb-4">
