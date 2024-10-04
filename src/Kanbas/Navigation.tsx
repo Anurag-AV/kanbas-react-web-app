@@ -9,7 +9,7 @@ export default function KanbasNavigation() {
   return (
     <div id="wd-kanbas-navigation" style={{ width: 120 }}className="list-group rounded-0 position-fixed
     bottom-0 top-0 d-none d-md-block bg-black z-2">
-      <a href="https://www.northeastern.edu/" className="list-group-item bg-black border-0 text-center"><img src="/images/NEU.png" width="75px" /></a><br/>
+      <a href="https://www.northeastern.edu/" className="list-group-item bg-black border-0 text-center"><img src="/images/NEU.png" width="75px" /></a>
       <Link to="/Kanbas/Account" id="wd-account-link" className={`${pathname.includes("Account") ? " list-group-item text-center border-0 text-danger bg-white" : "list-group-item text-center border-0 text-white bg-black"}`}>
       <FaRegCircleUser className="fs-1 text text-white" /><br />Account</Link>
 

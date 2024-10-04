@@ -26,4 +26,13 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
   .wd-lesson {
     border-left: 3px solid green !important;
   }
-    
+.input-group .input-group-text {
+  border-right: none; /* Remove the right border of the input-group-text */
+}
+
+.input-group .form-control {
+  border-left: none; /* Remove the left border of the form-control */
+}
+.no-underline {
+  text-decoration: none;
+}   
