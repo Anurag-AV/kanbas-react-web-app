@@ -3,9 +3,12 @@ import { GoSearch } from "react-icons/go";
 import LessonControlButtons from "../Modules/LessonControlButtons";
 import { FaCheckCircle, FaCircle, FaPlus } from "react-icons/fa";
 import { TfiWrite } from "react-icons/tfi";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import GreenCheckmark from "../Modules/GreenCheckmark";
+import * as db from "../../Database";
 export default function Assignments() {
+  const { cid } = useParams();
+  const assignments = db.assignments;
   return (
     <div id="wd-assignments">
       <div className="d-flex  justify-content-between w-100">
@@ -53,7 +56,39 @@ export default function Assignments() {
            >40% of Total</span> 
           </div>
           <ul className=" wd-lessons wd-assignment-list list-group rounded-0">
-            <Link
+            {assignments.filter((assignment: any) => assignment.course === cid).map((assignment)=>(
+              <Link
+              id="wd-assignment-link"
+              className="no-underline"
+              to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+            >
+              <li className="align-items-center text-nowrap wd-lesson wd-assignment-list-item list-group-item ps-1 d-flex justify-content-between">
+                <div className="d-flex align-items-center">
+                  <BsGripVertical className="m-2 fs-3" />
+                  <TfiWrite className="ms-2 me-4 fs-4" color="green" />
+                  <div>
+                    <h5 className="mb-0">
+                      <strong>{assignment.title}</strong>
+                    </h5>
+                    <span className="text-danger fs-6">{assignment.type} </span>{" "}
+                    | <strong className="fs-6"> Not available until </strong>
+                    <span className="fs-6 mb-0"> {assignment.availableDate} at {assignment.availableTime} | </span>
+                    <br/>
+                    <strong className="fs-6"> Due</strong>{" "}
+                    <span className="fs-6">{assignment.dueDate} at {assignment.dueTime} | {assignment.points}pts</span>
+                  </div>
+                </div>
+                <div className="ms-auto">
+                  <FaCheckCircle
+                    style={{ top: "2px" }}
+                    className="text-success fs-3 me-4"
+                  />
+                  <BsThreeDotsVertical className="fs-3" />
+                </div>
+              </li>
+            </Link>
+            ))}
+            {/* <Link
               id="wd-assignment-link"
               className="no-underline"
               to="/Kanbas/Courses/1234/Assignments/123"
@@ -142,7 +177,7 @@ export default function Assignments() {
                   <BsThreeDotsVertical className="fs-3" />
                 </div>
               </li>
-            </Link>
+            </Link> */}
           </ul>
         </li>
       </ul>{" "}

@@ -1,13 +1,20 @@
+import { useLocation, useParams } from "react-router";
+import * as db from "../../Database";
+import { Link } from "react-router-dom";
 export default function AssignmentEditor() {
+  const { cid,aid } = useParams();
+  const { pathname } = useLocation();
+
+  const assignment = db.assignments.filter((assignment:any)=>(assignment._id === aid))[0];
   return (
     <div id="wd-assignments-editor">
       <div className="col ms-3">
         <div className="row ms-2">
-          <h5>Assignment</h5>
+          <h5>Assignment Name</h5>
         </div>
         <div className="row ms-3 me-3 mb-4">
           <label htmlFor="wd-name" className="form-label"></label>
-          <input id="wd-name" className="form-control" value="A1" />
+          <input id="wd-name" className="form-control" value={assignment.title} />
           <br />
           <br />
         </div>
@@ -17,17 +24,7 @@ export default function AssignmentEditor() {
             className=" form-control border border-dark rounded-1  mt-2"
             rows={10}
           >
-            The assignment is available online Submit a link to the landing page
-            of The assignment is available online Submit a link to the landing
-            page of The assignment is available online Submit a link to the
-            landing page of The assignment is available online Submit a link to
-            the landing page of The assignment is available online Submit a link
-            to the landing page of The assignment is available online Submit a
-            link to the landing page of The assignment is available online
-            Submit a link to the landing page of The assignment is available
-            online Submit a link to the landing page of The assignment is
-            available online Submit a link to the landing page of The assignment
-            is available online Submit a link to the landing page of
+            {assignment.description}
           </textarea>
         </div>
         <div className="ms-3 mb-4 me-2 row d-flex">
@@ -40,7 +37,7 @@ export default function AssignmentEditor() {
             <input
               id="wd-points"
               className=" form-control border border-dark rounded-1"
-              value={100}
+              value={assignment.points}
             />
           </div>
         </div>
@@ -190,7 +187,7 @@ export default function AssignmentEditor() {
                 id="wd-assign-to"
                 type="date"
                 className=" form-control mb-3 border border-dark rounded-1"
-                value="2000-01-21"
+                value={assignment.dueDate}
               />
               <div className="row">
                 <div className="col-6">
@@ -203,7 +200,7 @@ export default function AssignmentEditor() {
                     id="wd-available-from"
                     type="date"
                     className=" form-control mb-3 border border-dark rounded-1"
-                    value="2000-01-21"
+                    value={assignment.availableDate}
                   />
                 </div>
                 <div className="col-6">
@@ -216,7 +213,7 @@ export default function AssignmentEditor() {
                     id="wd-available-until"
                     type="date"
                     className=" form-control mb-3 border border-dark rounded-1"
-                    value="2000-01-21"
+                    value={assignment.dueDate}
                   />
                 </div>
               </div>
@@ -226,18 +223,21 @@ export default function AssignmentEditor() {
         <div className="ms-3 mb-4 me-2 row d-flex">
         <hr></hr>
       <div className="d-flex me-2 justify-content-end w-100">
-      <button
+
+      <Link to ={`${pathname.split(aid?aid:"")[0]}`}><button
           id="wd-add-assignment-group"
           className="float-end text-nowrap btn btn-lg btn-secondary me-1"
         >
           Cancel
-        </button>
-        <button
+        </button></Link>
+
+        <Link to ={`${pathname.split(aid?aid:"")[0]}`}><button
           id="wd-add-assignment-group"
           className="float-end text-nowrap btn btn-lg btn-danger me-1"
         >
           Submit
-        </button>
+        </button></Link>
+        
       </div>
         </div>
         
