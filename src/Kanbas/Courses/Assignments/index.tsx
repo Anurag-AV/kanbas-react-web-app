@@ -1,14 +1,17 @@
 import { BsGripVertical, BsPlus, BsThreeDotsVertical } from "react-icons/bs";
 import { GoSearch } from "react-icons/go";
-import LessonControlButtons from "../Modules/LessonControlButtons";
-import { FaCheckCircle, FaCircle, FaPlus } from "react-icons/fa";
+import { FaCheckCircle, FaTrash } from "react-icons/fa";
 import { TfiWrite } from "react-icons/tfi";
-import { Link, useParams } from "react-router-dom";
-import GreenCheckmark from "../Modules/GreenCheckmark";
-import * as db from "../../Database";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteAssignment } from "./reducer";
+import AssignmentDelete from "./AssignmentDelete";
 export default function Assignments() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { cid } = useParams();
-  const assignments = db.assignments;
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   return (
     <div id="wd-assignments">
       <div className="d-flex  justify-content-between w-100">
@@ -24,22 +27,29 @@ export default function Assignments() {
           />
         </div>
         <div className="float-end d-flex">
-        <button
-          id="wd-add-assignment-group"
-          className="text-nowrap btn btn-lg btn-secondary me-1 float-end"
-        >
-          <BsPlus className="me-1 fs-2"
-          style={{ bottom: "1px" }}/>
-          Group
-        </button>
-        <button
-          id="wd-add-assignment"
-          className=" text-nowrap btn btn-lg btn-danger me-1 float-end"
-        >
-          <BsPlus className="me-1 fs-2"
-          style={{ bottom: "1px" }}/>
-          Assignment
-        </button>
+          {currentUser && currentUser.role === "FACULTY" && (
+            <button
+              id="wd-add-assignment-group"
+              className="text-nowrap btn btn-lg btn-secondary me-1 float-end"
+            >
+              <BsPlus className="me-1 fs-2" style={{ bottom: "1px" }} />
+              Group
+            </button>
+          )}
+          {currentUser && currentUser.role === "FACULTY" && (
+            <button
+              id="wd-add-assignment"
+              className=" text-nowrap btn btn-lg btn-danger me-1 float-end"
+              onClick={() => {
+                navigate(
+                  "/Kanbas/Courses/" + cid + "/Assignments/newAssignment"
+                );
+              }}
+            >
+              <BsPlus className="me-1 fs-2" style={{ bottom: "1px" }} />
+              Assignment
+            </button>
+          )}
         </div>
       </div>
       <br />
@@ -48,168 +58,85 @@ export default function Assignments() {
         <li className="wd-module list-group-item p-0 mb-5 fs-5 border-gray">
           <div className="wd-title p-3 ps-2 bg-secondary">
             <BsGripVertical className="me-2 fs-3" />
-            ASSIGNMENTS 
-            <BsThreeDotsVertical className="float-end fs-4 me-2" />
-          <BsPlus className="float-end me-4  fs-2"
-          style={{ bottom: "2px" }}/>
-            <span className="float-end border border-dark rounded-5 fs-6 p-2 me-4"
-           >40% of Total</span> 
+            ASSIGNMENTS
+            {currentUser && currentUser.role === "FACULTY" && (
+              <BsThreeDotsVertical className="float-end fs-4 me-2" />
+            )}
+            {currentUser && currentUser.role === "FACULTY" && (
+              <BsPlus
+                className="float-end me-4  fs-2"
+                style={{ bottom: "2px" }}
+              />
+            )}
+            {currentUser && currentUser.role === "FACULTY" && (
+              <span className="float-end border border-dark rounded-5 fs-6 p-2 me-4">
+                40% of Total
+              </span>
+            )}
           </div>
           <ul className=" wd-lessons wd-assignment-list list-group rounded-0">
-            {assignments.filter((assignment: any) => assignment.course === cid).map((assignment)=>(
-              <Link
-              id="wd-assignment-link"
-              className="no-underline"
-              to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
-            >
-              <li className="align-items-center text-nowrap wd-lesson wd-assignment-list-item list-group-item ps-1 d-flex justify-content-between">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="m-2 fs-3" />
-                  <TfiWrite className="ms-2 me-4 fs-4" color="green" />
-                  <div>
-                    <h5 className="mb-0">
-                      <strong>{assignment.title}</strong>
-                    </h5>
-                    <span className="text-danger fs-6">{assignment.type} </span>{" "}
-                    | <strong className="fs-6"> Not available until </strong>
-                    <span className="fs-6 mb-0"> {assignment.availableDate} at {assignment.availableTime} | </span>
-                    <br/>
-                    <strong className="fs-6"> Due</strong>{" "}
-                    <span className="fs-6">{assignment.dueDate} at {assignment.dueTime} | {assignment.points}pts</span>
+            {assignments
+              .filter((assignment: any) => assignment.course === cid)
+              .map((assignment: any) => (
+                <li className="align-items-center text-nowrap wd-lesson wd-assignment-list-item list-group-item ps-1 d-flex justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <BsGripVertical className="m-2 fs-3" />
+                    {currentUser && currentUser.role === "FACULTY" && (
+                      <Link
+                        id="wd-assignment-link"
+                        className="no-underline"
+                        to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                      >
+                        <TfiWrite className="ms-2 me-4 fs-4" color="green" />
+                      </Link>
+                    )}
+                    <div>
+                      <h5 className="mb-0">
+                        <strong>{assignment.title}</strong>
+                      </h5>
+                      <span className="text-danger fs-6">
+                        {assignment.type}{" "}
+                      </span>{" "}
+                      | <strong className="fs-6"> Not available until </strong>
+                      <span className="fs-6 mb-0">
+                        {" "}
+                        {assignment.availableDate} at {assignment.availableTime}{" "}
+                        |{" "}
+                      </span>
+                      <br />
+                      <strong className="fs-6"> Due</strong>{" "}
+                      <span className="fs-6">
+                        {assignment.dueDate} at {assignment.dueTime} |{" "}
+                        {assignment.points}pts
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="ms-auto">
-                  <FaCheckCircle
-                    style={{ top: "2px" }}
-                    className="text-success fs-3 me-4"
+                  {currentUser && currentUser.role === "FACULTY" && (
+                    <div className="ms-auto">
+                      <FaTrash
+                        className="text-danger me-4 mb-1"
+                        data-bs-toggle="modal"
+                        data-bs-target={`#${assignment._id}`}
+                      />
+                      <FaCheckCircle
+                        style={{ top: "2px" }}
+                        className="text-success fs-3 me-4"
+                      />
+                      <BsThreeDotsVertical className="fs-3" />
+                    </div>
+                  )}
+                  <AssignmentDelete
+                    title={assignment.title}
+                    id={assignment._id}
+                    deleteAssignment={(id) => {
+                      dispatch(deleteAssignment(id));
+                    }}
                   />
-                  <BsThreeDotsVertical className="fs-3" />
-                </div>
-              </li>
-            </Link>
-            ))}
-            {/* <Link
-              id="wd-assignment-link"
-              className="no-underline"
-              to="/Kanbas/Courses/1234/Assignments/123"
-            >
-              <li className="align-items-center text-nowrap wd-lesson wd-assignment-list-item list-group-item ps-1 d-flex justify-content-between">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="m-2 fs-3" />
-                  <TfiWrite className="ms-2 me-4 fs-4" color="green" />
-                  <div>
-                    <h5 className="mb-0">
-                      <strong>A1</strong>
-                    </h5>
-                    <span className="text-danger fs-6">Multiple Modules </span>{" "}
-                    | <strong className="fs-6"> Not available until </strong>
-                    <span className="fs-6 mb-0"> May 6 at 12:00am | </span>
-                    <br/>
-                    <strong className="fs-6"> Due</strong>{" "}
-                    <span className="fs-6">May 13 at 11:59pm | 100pts</span>
-                  </div>
-                </div>
-                <div className="ms-auto">
-                  <FaCheckCircle
-                    style={{ top: "2px" }}
-                    className="text-success fs-3 me-4"
-                  />
-                  <BsThreeDotsVertical className="fs-3" />
-                </div>
-              </li>
-            </Link>
-            <Link
-              id="wd-assignment-link"
-              className="no-underline"
-              to="/Kanbas/Courses/1234/Assignments/123"
-            >
-              <li className="align-items-center text-nowrap wd-lesson wd-assignment-list-item list-group-item ps-1 d-flex justify-content-between">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="m-2 fs-3" />
-                  <TfiWrite className="ms-2 me-4 fs-4" color="green" />
-                  <div>
-                    <h5 className="mb-0">
-                      <strong>A2</strong>
-                    </h5>
-                    <span className="text-danger fs-6">Multiple Modules </span>{" "}
-                    | <strong className="fs-6"> Not available until </strong>
-                    <span className="fs-6 mb-0"> Jan 6 at 12:00am | </span>
-                    <br/>
-                    <strong className="fs-6"> Due</strong>{" "}
-                    <span className="fs-6">Jan 15 at 11:59pm | 100pts</span>
-                  </div>
-                </div>
-                <div className="ms-auto">
-                  <FaCheckCircle
-                    style={{ top: "2px" }}
-                    className="text-success fs-3 me-4"
-                  />
-                  <BsThreeDotsVertical className="fs-3" />
-                </div>
-              </li>
-            </Link>
-            <Link
-              id="wd-assignment-link"
-              className="no-underline"
-              to="/Kanbas/Courses/1234/Assignments/123"
-            >
-              <li className="align-items-center text-nowrap wd-lesson wd-assignment-list-item list-group-item ps-1 d-flex justify-content-between">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="m-2 fs-3" />
-                  <TfiWrite className="ms-2 me-4 fs-4" color="green" />
-                  <div>
-                    <h5 className="mb-0">
-                      <strong>A3</strong>
-                    </h5>
-                    <span className="text-danger fs-6">Multiple Modules </span>{" "}
-                    | <strong className="fs-6"> Not available until </strong>
-                    <span className="fs-6 mb-0"> Aug 3 at 12:00am | </span>
-                    <br/>
-                    <strong className="fs-6"> Due</strong>{" "}
-                    <span className="fs-6">Aug 13 at 11:59pm | 100pts</span>
-                  </div>
-                </div>
-                <div className="ms-auto">
-                  <FaCheckCircle
-                    style={{ top: "2px" }}
-                    className="text-success fs-3 me-4"
-                  />
-                  <BsThreeDotsVertical className="fs-3" />
-                </div>
-              </li>
-            </Link> */}
+                </li>
+              ))}
           </ul>
         </li>
       </ul>{" "}
-      {/* <h3 id="wd-assignments-title">
-          ASSIGNMENTS 40% of Total <button>+</button>
-        </h3>
-          <ul id="wd-assignment-list">
-            <li className="wd-assignment-list-item">
-              <a className="wd-assignment-link"
-                href="#/Kanbas/Courses/1234/Assignments/123">
-                A1 - ENV + HTML
-              </a>
-              <br />
-              Multiple Modules | <strong>Not available until</strong> May 6 at 12:00am |<br /> <strong>Due</strong> May 13 at 11:59pm | 100pts
-            </li>
-            <li className="wd-assignment-list-item">
-            <a className="wd-assignment-link"
-                href="#/Kanbas/Courses/6240/Assignments/123">
-                A1 - CSS+BOOTSTRAP
-              </a>
-              <br />
-              Multiple Modules | <strong>Not available until</strong> May 6 at 12:00am |<br /> <strong>Due</strong> May 13 at 11:59pm | 100pts
-            </li>
-            <li className="wd-assignment-list-item">
-            <a className="wd-assignment-link"
-                href="#/Kanbas/Courses/5800/Assignments/123">
-                A1 - Javascript + REACT
-              </a>
-              <br />
-              Multiple Modules | <strong>Not available until</strong> May 6 at 12:00am |<br /> <strong>Due</strong> May 13 at 11:59pm | 100pts
-            </li>
-          </ul> */}
     </div>
   );
 }
