@@ -12,7 +12,8 @@ export default function AssignmentEditor() {
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const assignment = {title: "New Assignment",
+  const assignment = {
+    title: "New Assignment",
     course: cid,
     type: "Multiple Modules",
     availableDate: "2024-01-21",
@@ -20,7 +21,8 @@ export default function AssignmentEditor() {
     dueDate: "2024-01-30",
     dueTime: "11:59pm",
     points: "40",
-    description : "This is a demo Assigjkhjghjhkjnment"}
+    description : "This is a demo Assigjkhjghjhkjnment"
+  }
 
   const [title, setTitle] = useState(assignment.title);
     const [type, setType] = useState(assignment.type);
@@ -46,6 +48,7 @@ export default function AssignmentEditor() {
     };
   const fetchAssignment = async () => {
     const assignment = await assignmentsClient.getAssignment(aid as string)
+    console.log(assignment)
     if (assignment.title){
       setTitle(assignment.title ?? ''); 
       setType(assignment.type ?? '');  
@@ -54,7 +57,7 @@ export default function AssignmentEditor() {
       setDueDate(assignment.dueDate ?? null);  
       setDueTime(assignment.dueTime ?? null);  
       setPoints(assignment.points ?? 0);  
-      setDescription(assignment.description ?? '');
+      setDescription(assignment.description ?? "");
     }
     
     
@@ -62,6 +65,8 @@ export default function AssignmentEditor() {
   };
   useEffect(() => {
     fetchAssignment();
+    console.log("called useeffect");
+    
   }, []);
      
 
@@ -84,9 +89,8 @@ export default function AssignmentEditor() {
             className=" form-control border border-dark rounded-1  mt-2"
             rows={10}
             onChange={(e) => setDescription(e.target.value)}
-            
-          >
-            {description}
+            value={description}
+          > 
           </textarea>
         </div>
         <div className="ms-3 mb-4 me-2 row d-flex">

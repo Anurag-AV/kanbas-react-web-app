@@ -18,6 +18,7 @@ export default function Dashboard({
   addNewCourse,
   deleteCourse,
   updateCourse,
+  fetchCourse,
   toggle,
 }: {
   courses: any[];
@@ -26,17 +27,18 @@ export default function Dashboard({
   addNewCourse: () => void;
   deleteCourse: (course: any) => void;
   updateCourse: () => void;
+  fetchCourse: () => void;
   toggle: ()=>void
 }) {
-  console.log("given"+courses)
+  
   const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [allCourses, setAllCourses] = useState([])
+  const [toggler, setToggler] = useState(false)
   const fetchAllCourses = async () => {
     try {
       const courses = await courseClient.fetchAllCourses();
-      console.log("all"+courses)
 
       setAllCourses(courses);
     } catch (error) {
@@ -45,13 +47,16 @@ export default function Dashboard({
   };
   useEffect(() => {
     fetchAllCourses();
-  }, [currentUser]);
+  }, []);
   const enrollUser = (userId:any, courseId:any)=>{
     enrollClient.enroll(userId, courseId)
+    fetchCourse()
     dispatch(enroll({user:userId, course:courseId}))
   }
+  
   const unEnrollUser = (userId:any, courseId:any)=>{
     enrollClient.unenroll(userId, courseId)
+    fetchCourse()
     dispatch(unEnroll({user:userId, course:courseId}))
   }
   return (
@@ -64,7 +69,7 @@ export default function Dashboard({
               className="btn btn-primary float-end mb-2"
               id="wd-add-new-course-click"
               onClick={()=>{
-                toggle()
+                setToggler(!toggler)
               }}
             >
               Enrollments
@@ -113,15 +118,16 @@ export default function Dashboard({
           {allCourses.map((course:any)=>{
         if(courses.some(
           (enrollment: any) =>
-            enrollment.user === currentUser._id &&
-            enrollment.course === course._id
+               enrollment._id === course._id
         )){
+          // console.log( { ...course, enrolled: true } )
           return { ...course, enrolled: true }
         }
         else{
+          // console.log( { ...course, enrolled: false } )
           return { ...course, enrolled: false }
         }
-      })
+      }).filter(course=>toggler || currentUser.role === "FACULTY" ? (toggler || currentUser.role === "FACULTY") && course.enrolled == true : true)
             .map((course) => (
               <div
                 className="wd-dashboard-course col"

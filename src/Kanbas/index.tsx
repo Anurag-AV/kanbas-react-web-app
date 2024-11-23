@@ -32,6 +32,8 @@ export default function Kanbas() {
       console.error(error);
     }
   };
+
+  const fetchCourseCallback = ()=>{fetchCourses()}
   useEffect(() => {
     fetchCourses();
   }, [currentUser]);
@@ -49,6 +51,7 @@ export default function Kanbas() {
   const addNewCourse = async () => {
     const newCourse = await userClient.createCourse(course);
     setCourses([...courses, newCourse]);
+    fetchCourses();
     // dispatch(addCourse({ ...course, _id: new Date().getTime().toString() }));
   };
   const deleteACourse = async (courseId: any) => {
@@ -56,7 +59,7 @@ export default function Kanbas() {
 
     const status = await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
-
+    fetchCourses();
     // dispatch(deleteCourse({ course: courseId }));
   };
   const updateACourse = async () => {
@@ -66,6 +69,7 @@ export default function Kanbas() {
         else { return c; }
     })
   )
+  await fetchCourses();
   };
 
   const toggle = () => {
@@ -89,22 +93,23 @@ export default function Kanbas() {
                 <ProtectedRoute>
                   <Dashboard
                     courses={
-                      currentUser && (toggler || currentUser.role == "FACULTY")
-                        ? currentUser &&
+                      // currentUser && (toggler || currentUser.role == "FACULTY")
+                      //   ? currentUser &&
                           courses.map((course: any) => ({
                             ...course,
                             enrolled: true,
                           }))
-                        : currentUser &&
-                          courses.map((course: any) => {
-                            return { ...course, enrolled: true };
-                          })
+                        // : currentUser &&
+                        //   courses.map((course: any) => {
+                        //     return { ...course, enrolled: true };
+                        //   })
                     }
                     course={course}
                     setCourse={setCourse}
                     addNewCourse={addNewCourse}
                     deleteCourse={deleteACourse}
                     updateCourse={updateACourse}
+                    fetchCourse = {fetchCourseCallback}
                     toggle={toggle}
                   />
                 </ProtectedRoute>
