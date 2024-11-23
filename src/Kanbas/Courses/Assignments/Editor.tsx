@@ -2,15 +2,17 @@ import { useLocation, useNavigate, useParams } from "react-router";
 // import * as db from "../../Database";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
-import { addAssignment, editAssignment } from "./reducer";
+import { useEffect, useState } from "react";
+import { addAssignment, editAssignment, setAssignments } from "./reducer";
+import * as coursesClient from "../client";
+import * as assignmentsClient from "./client";
 export default function AssignmentEditor() {
   const { cid,aid } = useParams();
   const { pathname } = useLocation();
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  let assignment = {title: "New Assignment",
+  const assignment = {title: "New Assignment",
     course: cid,
     type: "Multiple Modules",
     availableDate: "2024-01-21",
@@ -18,14 +20,9 @@ export default function AssignmentEditor() {
     dueDate: "2024-01-30",
     dueTime: "11:59pm",
     points: "40",
-    description : "This is a demo Assignment"}
+    description : "This is a demo Assigjkhjghjhkjnment"}
 
-    const dbassignment = assignments.filter((assignment:any)=>(assignment._id === aid))[0];
-    if(dbassignment){
-     assignment = dbassignment
-    }
-  
-    const [title, setTitle] = useState(assignment.title);
+  const [title, setTitle] = useState(assignment.title);
     const [type, setType] = useState(assignment.type);
     const [availableDate, setAvailableDate] = useState(assignment.availableDate);
     const [availableTime, setAvailableTime] = useState(assignment.availableTime);
@@ -33,9 +30,41 @@ export default function AssignmentEditor() {
     const [dueTime, setDueTime] = useState(assignment.dueTime);
     const [points, setPoints] = useState(assignment.points);
     const [description, setDescription] = useState(assignment.description);
+    const updateAssignment = async () => {
+      const newAssignment = {_id:aid,course: cid, title,
+        type,
+        availableDate,
+        availableTime,
+        dueDate,
+        dueTime,
+        points,
+        description,};
+        console.log("saving", newAssignment)
+      const assignment = await assignmentsClient.updateAssignment(newAssignment);
+      console.log("saved", assignment)
+      dispatch(editAssignment(assignment));
+    };
+  const fetchAssignment = async () => {
+    const assignment = await assignmentsClient.getAssignment(aid as string)
+    if (assignment.title){
+      setTitle(assignment.title ?? ''); 
+      setType(assignment.type ?? '');  
+      setAvailableDate(assignment.availableDate ?? null);  
+      setAvailableTime(assignment.availableTime ?? null); 
+      setDueDate(assignment.dueDate ?? null);  
+      setDueTime(assignment.dueTime ?? null);  
+      setPoints(assignment.points ?? 0);  
+      setDescription(assignment.description ?? '');
+    }
+    
+    
+     
+  };
+  useEffect(() => {
+    fetchAssignment();
+  }, []);
+     
 
-
-   
   return (
     <div id="wd-assignments-editor">
       <div className="col ms-3">
@@ -55,6 +84,7 @@ export default function AssignmentEditor() {
             className=" form-control border border-dark rounded-1  mt-2"
             rows={10}
             onChange={(e) => setDescription(e.target.value)}
+            
           >
             {description}
           </textarea>
@@ -270,32 +300,8 @@ export default function AssignmentEditor() {
         <Link to ={`${pathname.split(aid?aid:"")[0]}`}><button
           id="wd-add-assignment-group"
           className="float-end text-nowrap btn btn-lg btn-danger me-1"
-          onClick = {()=>{
-            if(dbassignment){
-              dispatch(editAssignment({
-                _id:dbassignment._id,
-                title,
-                course:cid,
-                type,
-                availableDate,
-                availableTime,
-                dueDate,
-                dueTime,
-                points,
-                description,
-              }))
-            }
-            else{dispatch(addAssignment({
-              title,
-              course:cid,
-              type,
-              availableDate,
-              availableTime,
-              dueDate,
-              dueTime,
-              points,
-              description,
-            }));}
+          onClick = {async ()=>{
+            await updateAssignment()
               
               navigate(pathname.split(aid?aid:"")[0]);
           }}

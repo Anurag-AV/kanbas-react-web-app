@@ -4,14 +4,37 @@ import { FaCheckCircle, FaTrash } from "react-icons/fa";
 import { TfiWrite } from "react-icons/tfi";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteAssignment } from "./reducer";
+import { addAssignment, deleteAssignment,setAssignments } from "./reducer";
 import AssignmentDelete from "./AssignmentDelete";
+import * as coursesClient from "../client";
+import * as assignmentsClient from "./client";
+import { useEffect } from "react";
 export default function Assignments() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cid } = useParams();
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const createAssignmentForCourse = async () => {
+    if (!cid) return;
+    const newAssignment = {course: cid };
+    const assignment = await coursesClient.createAssignmentForCourse(cid);
+    dispatch(addAssignment(assignment));
+    return assignment._id
+  };
+
+  const deleteTheAssignment = async (assignmentId:string) => {
+    if (!assignmentId) return;
+    const assignment = await assignmentsClient.deleteAssignment(assignmentId);
+    dispatch(deleteAssignment(assignmentId));
+  };
+  const fetchAssignments = async () => {
+    const assignments = await coursesClient.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
   return (
     <div id="wd-assignments">
       <div className="d-flex  justify-content-between w-100">
@@ -40,11 +63,15 @@ export default function Assignments() {
             <button
               id="wd-add-assignment"
               className=" text-nowrap btn btn-lg btn-danger me-1 float-end"
-              onClick={() => {
+              onClick={
+
+                async () => {
+                  let aid = await createAssignmentForCourse();
                 navigate(
-                  "/Kanbas/Courses/" + cid + "/Assignments/newAssignment"
+                  "/Kanbas/Courses/" + cid + "/Assignments/"+aid
                 );
-              }}
+              }
+            }
             >
               <BsPlus className="me-1 fs-2" style={{ bottom: "1px" }} />
               Assignment
@@ -129,7 +156,7 @@ export default function Assignments() {
                     title={assignment.title}
                     id={assignment._id}
                     deleteAssignment={(id) => {
-                      dispatch(deleteAssignment(id));
+                      deleteTheAssignment(id)
                     }}
                   />
                 </li>
