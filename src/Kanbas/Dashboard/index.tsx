@@ -7,7 +7,10 @@ import {
   ReactNode,
   ReactPortal,
   useState,
+  useEffect,
 } from "react";
+import * as enrollClient from "./Enrollment/client";
+import * as courseClient from "../Courses/client";
 export default function Dashboard({
   courses,
   course,
@@ -25,11 +28,32 @@ export default function Dashboard({
   updateCourse: () => void;
   toggle: ()=>void
 }) {
-  
+  console.log("given"+courses)
   const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  
+  const [allCourses, setAllCourses] = useState([])
+  const fetchAllCourses = async () => {
+    try {
+      const courses = await courseClient.fetchAllCourses();
+      console.log("all"+courses)
+
+      setAllCourses(courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchAllCourses();
+  }, [currentUser]);
+  const enrollUser = (userId:any, courseId:any)=>{
+    enrollClient.enroll(userId, courseId)
+    dispatch(enroll({user:userId, course:courseId}))
+  }
+  const unEnrollUser = (userId:any, courseId:any)=>{
+    enrollClient.unenroll(userId, courseId)
+    dispatch(unEnroll({user:userId, course:courseId}))
+  }
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
@@ -86,8 +110,8 @@ export default function Dashboard({
       <hr />
       <div id="wd-dashboard-courses" className="row">
         <div className="row row-cols-1 row-cols-md-5 g-4">
-          {courses.map((course)=>{
-        if(enrollments.some(
+          {allCourses.map((course:any)=>{
+        if(courses.some(
           (enrollment: any) =>
             enrollment.user === currentUser._id &&
             enrollment.course === course._id
@@ -125,7 +149,7 @@ export default function Dashboard({
                       <button
                         onClick={(event) => {
                           event.preventDefault();
-                          dispatch(unEnroll({user:currentUser._id, course:course._id}))
+                          unEnrollUser(currentUser._id, course._id)
                         }}
                         className="btn btn-danger float-end"
                         id="wd-delete-course-click"
@@ -137,7 +161,7 @@ export default function Dashboard({
                       <button
                         onClick={(event) => {
                           event.preventDefault();
-                          dispatch(enroll({user:currentUser._id, course:course._id}))
+                          enrollUser(currentUser._id, course._id)
                         }}
                         className="btn btn-success float-end"
                         id="wd-delete-course-click"

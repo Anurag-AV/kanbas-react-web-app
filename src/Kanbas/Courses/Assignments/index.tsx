@@ -17,7 +17,6 @@ export default function Assignments() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const createAssignmentForCourse = async () => {
     if (!cid) return;
-    const newAssignment = {course: cid };
     const assignment = await coursesClient.createAssignmentForCourse(cid);
     dispatch(addAssignment(assignment));
     return assignment._id

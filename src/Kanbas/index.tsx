@@ -66,16 +66,6 @@ export default function Kanbas() {
         else { return c; }
     })
   )
-
-    // dispatch(updateCourse({ ...course }));
-    //   courses.map((c) => {
-    //     if (c._id === course._id) {
-    //       return course;
-    //     } else {
-    //       return c;
-    //     }
-    //   })
-    // );
   };
 
   const toggle = () => {
