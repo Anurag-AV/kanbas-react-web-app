@@ -9,22 +9,72 @@ import * as db from "./Database";
 import { useEffect, useState } from "react";
 import ProtectedRoute from "./Account/protectedRoute";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addCourse,
-  deleteCourse,
-  updateCourse,
-} from "./Dashboard/Courses/reducer";
 import ProtectedDashboard from "./Dashboard/protectedDashboard";
 import Session from "./Account/Session";
 import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
 
 export default function Kanbas() {
+  
   const dispatch = useDispatch();
   const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
   const [courses, setCourses] = useState<any[]>([]);
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+   const { currentUser } = useSelector((state: any) => state.accountReducer);
+  
+
+
+
+
+
+  const [enrolling, setEnrolling] = useState<boolean>(false);
+  const findCoursesForUser = async () => {
+    console.log("fetching cources for user")
+    try {
+      const courses = await userClient.findCoursesForUser(currentUser._id);
+      console.log(courses)
+      setCourses(courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const fetchCourses = async () => {
+    console.log("fetching all courses")
+    try {
+      const allCourses = await courseClient.fetchAllCourses();
+      const enrolledCourses = await userClient.findCoursesForUser(
+        currentUser._id
+      );
+      console.log("enrolledd uses", enrolledCourses)
+      const courses = allCourses.map((course: any) => {
+        if (enrolledCourses.find((c: any) => c._id === course._id)) {
+          return { ...course, enrolled: true };
+        } else {
+          return course;
+        }
+      });
+      console.log(courses)
+      setCourses(courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    if (enrolling) {
+      fetchCourses();
+    } else {
+      findCoursesForUser();
+    }
+  }, [currentUser, enrolling]);
+
+
+
+
+
+
+
+
+  
+  const fetchCourses2 = async () => {
     try {
       // const courses = await userClient.findMyCourses();
       const courses = await courseClient.fetchAllCourses();
@@ -36,7 +86,7 @@ export default function Kanbas() {
 
   const fetchCourseCallback = ()=>{fetchCourses()}
   useEffect(() => {
-    fetchCourses();
+    fetchCourses2();
   }, [currentUser]);
 
   // const allcourse = useSelector((state:any) => state.coursesReducer).courses;
@@ -50,7 +100,7 @@ export default function Kanbas() {
     description: "New Description",
   });
   const addNewCourse = async () => {
-    const newCourse = await userClient.createCourse(course);
+    const newCourse = await courseClient.createCourse(course);
     setCourses([...courses, newCourse]);
     fetchCourses();
     // dispatch(addCourse({ ...course, _id: new Date().getTime().toString() }));
@@ -60,9 +110,29 @@ export default function Kanbas() {
 
     const status = await courseClient.deleteCourse(courseId);
     setCourses(courses.filter((course) => course._id !== courseId));
-    fetchCourses();
+
     // dispatch(deleteCourse({ course: courseId }));
   };
+  const updateEnrollment = async (courseId: string, enrolled: boolean) => {
+    if (enrolled) {
+      console.log("enrolling")
+      await userClient.enrollIntoCourse(currentUser._id, courseId);
+    } else {
+      console.log("unenrolling")
+      await userClient.unenrollFromCourse(currentUser._id, courseId);
+    }
+    setCourses(
+      courses.map((course) => {
+        if (course._id === courseId) {
+          return { ...course, enrolled: enrolled };
+        } else {
+          return course;
+        }
+      })
+    );
+  };
+ 
+ 
   const updateACourse = async () => {
     await courseClient.updateCourse(course);
     setCourses(courses.map((c) => {
@@ -94,16 +164,7 @@ export default function Kanbas() {
                 <ProtectedRoute>
                   <Dashboard
                     courses={
-                      // currentUser && (toggler || currentUser.role == "FACULTY")
-                      //   ? currentUser &&
-                          courses.map((course: any) => ({
-                            ...course,
-                            enrolled: true,
-                          }))
-                        // : currentUser &&
-                        //   courses.map((course: any) => {
-                        //     return { ...course, enrolled: true };
-                        //   })
+                     courses
                     }
                     course={course}
                     setCourse={setCourse}
@@ -112,6 +173,9 @@ export default function Kanbas() {
                     updateCourse={updateACourse}
                     fetchCourse = {fetchCourseCallback}
                     toggle={toggle}
+                    enrolling={enrolling} 
+                    setEnrolling={setEnrolling}
+                    updateEnrollment={updateEnrollment}
                   />
                 </ProtectedRoute>
               }
