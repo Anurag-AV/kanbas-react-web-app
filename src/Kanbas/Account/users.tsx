@@ -47,6 +47,7 @@ export default function Users() {
 useEffect(() => {
   fetchUsers();
 }, [uid]);
+console.log("users")
 return (
   <div>
     <button onClick={createUser} className="float-end btn btn-danger wd-add-people">

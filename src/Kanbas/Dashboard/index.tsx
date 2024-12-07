@@ -18,7 +18,6 @@ export default function Dashboard({
   addNewCourse,
   deleteCourse,
   updateCourse,
-  fetchCourse,
   toggle,
   enrolling, 
   setEnrolling, 
@@ -30,16 +29,11 @@ export default function Dashboard({
   addNewCourse: () => void;
   deleteCourse: (course: any) => void;
   updateCourse: () => void;
-  fetchCourse: () => void;
   toggle: ()=>void; 
   enrolling: boolean; 
   setEnrolling: (enrolling: boolean) => void;
   updateEnrollment: (courseId: string, enrolled: boolean) => void 
 }) {
-  
-  useEffect(()=>{
-    console.log("courses",courses)
-  },[courses])
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [allCourses, setAllCourses] = useState([])
@@ -55,17 +49,8 @@ export default function Dashboard({
   useEffect(() => {
     fetchAllCourses();
   }, []);
-  const enrollUser = (userId:any, courseId:any)=>{
-    enrollClient.enroll(userId, courseId)
-    fetchCourse()
-    dispatch(enroll({user:userId, course:courseId}))
-  }
   
-  const unEnrollUser = (userId:any, courseId:any)=>{
-    enrollClient.unenroll(userId, courseId)
-    fetchCourse()
-    dispatch(unEnroll({user:userId, course:courseId}))
-  }
+  
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
@@ -81,7 +66,7 @@ export default function Dashboard({
             >
               Enrollments
             </button> */}
-            <button onClick={() => {console.log("setting enrolling");setEnrolling(!enrolling)}} className="float-end btn btn-primary" >
+            <button onClick={() => {setEnrolling(!enrolling)}} className="float-end btn btn-primary" >
           {enrolling ? "My Courses" : "All Courses"}
         </button>
           </div>
@@ -98,6 +83,7 @@ export default function Dashboard({
               Add{" "}
             </button>
             <button
+            disabled={course._id?false:true}
               className="btn btn-warning float-end me-2 mb-2"
               onClick={updateCourse}
               id="wd-update-course-click"
@@ -106,12 +92,12 @@ export default function Dashboard({
             </button>
             <br />
             <input
-              value={course.name}
+              value={course?.name}
               className="form-control mb-2"
               onChange={(e) => setCourse({ ...course, name: e.target.value })}
             />
             <textarea
-              value={course.description}
+              value={course?.description}
               className="form-control"
               onChange={(e) =>
                 setCourse({ ...course, description: e.target.value })

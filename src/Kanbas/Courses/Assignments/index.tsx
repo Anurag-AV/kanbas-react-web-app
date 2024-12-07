@@ -25,6 +25,7 @@ export default function Assignments() {
   const deleteTheAssignment = async (assignmentId:string) => {
     if (!assignmentId) return;
     const assignment = await assignmentsClient.deleteAssignment(assignmentId);
+    fetchAssignments()
     dispatch(deleteAssignment(assignmentId));
   };
   const fetchAssignments = async () => {

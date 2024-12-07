@@ -15,12 +15,9 @@ import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
 
 export default function Kanbas() {
-  
-  const dispatch = useDispatch();
-  const { enrollments } = useSelector((state: any) => state.enrollmentReducer);
+
   const [courses, setCourses] = useState<any[]>([]);
    const { currentUser } = useSelector((state: any) => state.accountReducer);
-  
 
 
 
@@ -28,23 +25,19 @@ export default function Kanbas() {
 
   const [enrolling, setEnrolling] = useState<boolean>(false);
   const findCoursesForUser = async () => {
-    console.log("fetching cources for user")
     try {
       const courses = await userClient.findCoursesForUser(currentUser._id);
-      console.log(courses)
       setCourses(courses);
     } catch (error) {
       console.error(error);
     }
   };
   const fetchCourses = async () => {
-    console.log("fetching all courses")
     try {
       const allCourses = await courseClient.fetchAllCourses();
       const enrolledCourses = await userClient.findCoursesForUser(
         currentUser._id
       );
-      console.log("enrolledd uses", enrolledCourses)
       const courses = allCourses.map((course: any) => {
         if (enrolledCourses.find((c: any) => c._id === course._id)) {
           return { ...course, enrolled: true };
@@ -52,18 +45,23 @@ export default function Kanbas() {
           return course;
         }
       });
-      console.log(courses)
       setCourses(courses);
     } catch (error) {
       console.error(error);
     }
   };
   useEffect(() => {
-    if (enrolling) {
-      fetchCourses();
-    } else {
+    if(currentUser && currentUser.role === "FACULTY"){
       findCoursesForUser();
     }
+    else{
+      if (enrolling) {
+        fetchCourses();
+      } else {
+        findCoursesForUser();
+      }
+    }
+    
   }, [currentUser, enrolling]);
 
 
@@ -74,25 +72,25 @@ export default function Kanbas() {
 
 
   
-  const fetchCourses2 = async () => {
-    try {
-      // const courses = await userClient.findMyCourses();
-      const courses = await courseClient.fetchAllCourses();
-      setCourses(courses);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const fetchCourses2 = async () => {
+  //   try {
+  //     // const courses = await userClient.findMyCourses();
+  //     const courses = await courseClient.fetchAllCourses();
+  //     setCourses(courses);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-  const fetchCourseCallback = ()=>{fetchCourses()}
-  useEffect(() => {
-    fetchCourses2();
-  }, [currentUser]);
+  // const fetchCourseCallback = ()=>{fetchCourses()}
+  // useEffect(() => {
+  //   fetchCourses2();
+  // }, [currentUser]);
 
   // const allcourse = useSelector((state:any) => state.coursesReducer).courses;
   const [toggler, setToggler] = useState(true);
   const [course, setCourse] = useState<any>({
-    _id: "1234",
+    // _id: "1234",
     name: "New Course",
     number: "New Number",
     startDate: "2023-09-10",
@@ -101,24 +99,22 @@ export default function Kanbas() {
   });
   const addNewCourse = async () => {
     const newCourse = await courseClient.createCourse(course);
-    setCourses([...courses, newCourse]);
-    fetchCourses();
+    // setCourses([...courses, newCourse]);
+    findCoursesForUser();
     // dispatch(addCourse({ ...course, _id: new Date().getTime().toString() }));
   };
   const deleteACourse = async (courseId: any) => {
     
 
     const status = await courseClient.deleteCourse(courseId);
-    setCourses(courses.filter((course) => course._id !== courseId));
+    findCoursesForUser();
+    // setCourses(courses.filter((course) => course._id !== courseId));
 
-    // dispatch(deleteCourse({ course: courseId }));
   };
   const updateEnrollment = async (courseId: string, enrolled: boolean) => {
     if (enrolled) {
-      console.log("enrolling")
       await userClient.enrollIntoCourse(currentUser._id, courseId);
     } else {
-      console.log("unenrolling")
       await userClient.unenrollFromCourse(currentUser._id, courseId);
     }
     setCourses(
@@ -140,7 +136,7 @@ export default function Kanbas() {
         else { return c; }
     })
   )
-  await fetchCourses();
+  await findCoursesForUser();
   };
 
   const toggle = () => {
@@ -171,7 +167,6 @@ export default function Kanbas() {
                     addNewCourse={addNewCourse}
                     deleteCourse={deleteACourse}
                     updateCourse={updateACourse}
-                    fetchCourse = {fetchCourseCallback}
                     toggle={toggle}
                     enrolling={enrolling} 
                     setEnrolling={setEnrolling}
@@ -185,25 +180,27 @@ export default function Kanbas() {
               element={
                 <ProtectedDashboard>
                   <Courses
-                    courses={
-                      currentUser && (toggler || currentUser.role == "FACULTY")
-                        ? currentUser &&
-                          courses.map((course: any) => ({
-                            ...course,
-                            enrolled: true,
-                          }))
-                        : currentUser &&
-                          courses.map((course: any) => {
-                            return { ...course, enrolled: true };
-                          })
-                    }
+                    // courses={
+                    //   currentUser && (toggler || currentUser.role == "FACULTY")
+                    //     ? currentUser &&
+                    //       courses.map((course: any) => ({
+                    //         ...course,
+                    //         enrolled: true,
+                    //       }))
+                    //     : currentUser &&
+                    //       courses.map((course: any) => {
+                    //         return { ...course, enrolled: true };
+                    //       })
+                    // }
+                    courses={courses}
                   />
+                  
                 </ProtectedDashboard>
               }
             />
             <Route path="/Calendar" element={<h1>Calendar</h1>} />
             <Route path="/Inbox" element={<h1>Inbox</h1>} />
-            <Route path="/People" element={<PeopleTable />} />
+            <Route path="/People" element={<PeopleTable users={[]}/>} />
           </Routes>
         </div>
       </div>
